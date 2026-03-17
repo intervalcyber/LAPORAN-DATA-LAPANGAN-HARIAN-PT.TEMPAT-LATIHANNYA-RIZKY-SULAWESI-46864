@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntervalCyber — Log Aktivitas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050a0f;--panel:#080f1a;--panel2:#0a1525;--border:#0e2238;
+  --accent:#f0a500;--accent2:#ff6b00;--blue:#00b4d8;
+  --ok:#06d6a0;--danger:#ef233c;--purple:#a78bfa;
+  --text:#d4e5f7;--dim:#3d5a78;
+  --mono:'Share Tech Mono',monospace;--display:'Orbitron',monospace;--body:'Exo 2',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,180,216,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,.02) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:20px 14px 40px;}
+
+/* NAVBAR */
+nav{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:0 18px;margin-bottom:16px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.nav-logo{font-family:var(--display);font-size:14px;font-weight:900;letter-spacing:3px;padding:14px 0;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0;}
+.nav-link{padding:6px 14px;border-radius:6px;font-family:var(--mono);font-size:10px;
+  letter-spacing:1px;text-decoration:none;color:var(--dim);transition:all .2s;border:1px solid transparent;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{background:rgba(240,165,0,.1);color:var(--accent);border-color:rgba(240,165,0,.25);}
+
+/* TOPBAR */
+.topbar{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:12px 18px;margin-bottom:16px;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:10px;}
+#clk{font-family:var(--display);font-size:18px;color:var(--accent);letter-spacing:2px;}
+#tgl{font-size:9px;color:var(--dim);font-family:var(--mono);}
+.mode-btn{padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:10px;
+  font-weight:bold;letter-spacing:1px;cursor:pointer;border:1px solid;transition:all .2s;}
+.mode-viewer{background:rgba(0,180,216,.08);color:var(--blue);border-color:rgba(0,180,216,.25);}
+.mode-admin{background:rgba(240,165,0,.08);color:var(--accent);border-color:rgba(240,165,0,.25);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:500px){.stats{grid-template-columns:1fr 1fr;}}
+.scard{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;text-align:center;position:relative;overflow:hidden;}
+.scard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.scard.c1::after{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.scard.c2::after{background:linear-gradient(90deg,#0077b6,var(--blue));}
+.scard.c3::after{background:linear-gradient(90deg,#028090,var(--ok));}
+.scard.c4::after{background:linear-gradient(90deg,#6d28d9,var(--purple));}
+.scard-label{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;font-family:var(--mono);margin-bottom:6px;}
+.scard-val{font-family:var(--display);font-size:28px;font-weight:900;color:#fff;line-height:1;}
+.scard-val.blue{color:var(--blue);}
+.scard-val.green{color:var(--ok);}
+.scard-val.purple{color:var(--purple);}
+
+/* VIEWER BANNER */
+.viewer-banner{background:rgba(0,180,216,.05);border:1px solid rgba(0,180,216,.15);
+  border-radius:10px;padding:12px 18px;margin-bottom:16px;
+  font-family:var(--mono);font-size:11px;color:var(--dim);}
+.viewer-banner span{color:var(--blue);}
+
+/* INPUT */
+.input-panel{background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;margin-bottom:16px;display:none;}
+.input-panel.show{display:block;}
+.panel-head{background:var(--panel2);padding:12px 18px;border-bottom:1px solid var(--border);
+  font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--accent);
+  text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.admin-tag{font-size:9px;background:rgba(240,165,0,.1);color:var(--accent);
+  border:1px solid rgba(240,165,0,.2);border-radius:20px;padding:2px 8px;letter-spacing:1px;}
+.input-body{padding:16px 18px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:500px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+label{font-size:9px;letter-spacing:1px;color:var(--dim);font-family:var(--mono);display:block;margin-bottom:4px;text-transform:uppercase;}
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:var(--mono);font-size:12px;outline:none;
+  transition:border .2s;resize:none;}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent);}
+select option{background:#0a1525;}
+.btn-catat{width:100%;padding:12px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border:none;border-radius:8px;color:#000;font-family:var(--display);font-size:12px;
+  font-weight:700;letter-spacing:2px;cursor:pointer;}
+
+/* TIMELINE */
+.timeline-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.timeline-head{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--border);}
+.timeline-head h2{font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+.btn-reset{background:rgba(239,35,60,.08);border:1px solid rgba(239,35,60,.2);
+  color:var(--danger);border-radius:6px;padding:4px 10px;font-family:var(--mono);
+  font-size:10px;cursor:pointer;display:none;}
+.btn-reset.show{display:block;}
+.timeline-body{padding:16px 18px;max-height:500px;overflow-y:auto;}
+.timeline-body::-webkit-scrollbar{width:3px;}
+.timeline-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.no-data{text-align:center;padding:40px 20px;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:1px;}
+
+/* TIMELINE ITEM */
+.tl-item{display:flex;gap:14px;margin-bottom:20px;animation:fadeIn .4s ease both;}
+.tl-item:last-child{margin-bottom:0;}
+.tl-left{display:flex;flex-direction:column;align-items:center;}
+.tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:14px;flex-shrink:0;border:2px solid;}
+.tl-dot.tugas{background:rgba(0,180,216,.1);border-color:rgba(0,180,216,.3);}
+.tl-dot.cek{background:rgba(6,214,160,.1);border-color:rgba(6,214,160,.3);}
+.tl-dot.masalah{background:rgba(239,35,60,.1);border-color:rgba(239,35,60,.3);}
+.tl-dot.laporan{background:rgba(240,165,0,.1);border-color:rgba(240,165,0,.3);}
+.tl-dot.lainnya{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);}
+.tl-line{width:1px;flex:1;min-height:20px;background:linear-gradient(var(--border),transparent);margin-top:4px;}
+.tl-right{flex:1;padding-bottom:4px;}
+.tl-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+.tl-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.tl-waktu{font-family:var(--mono);font-size:10px;color:var(--accent);}
+.tl-badges{display:flex;gap:6px;align-items:center;}
+.tl-badge{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.5px;}
+.badge-tugas{background:rgba(0,180,216,.1);color:var(--blue);border:1px solid rgba(0,180,216,.2);}
+.badge-cek{background:rgba(6,214,160,.1);color:var(--ok);border:1px solid rgba(6,214,160,.2);}
+.badge-masalah{background:rgba(239,35,60,.1);color:var(--danger);border:1px solid rgba(239,35,60,.2);}
+.badge-laporan{background:rgba(240,165,0,.1);color:var(--accent);border:1px solid rgba(240,165,0,.2);}
+.badge-lainnya{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.tl-judul{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;}
+.tl-ket{font-size:11px;color:var(--dim);line-height:1.6;}
+.tl-lokasi{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:6px;}
+.tl-lokasi span{color:var(--blue);}
+.btn-hapus{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;
+  padding:2px 6px;border-radius:4px;transition:color .2s;font-family:var(--mono);}
+.btn-hapus:hover{color:var(--danger);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;
+  align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:28px 24px;width:90%;max-width:360px;text-align:center;
+  transform:translateY(20px);transition:transform .3s;}
+.modal-overlay.show .modal{transform:translateY(0);}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal h2{font-family:var(--display);font-size:14px;letter-spacing:2px;color:#fff;margin-bottom:6px;}
+.modal p{font-size:11px;color:var(--dim);font-family:var(--mono);margin-bottom:20px;}
+.modal input[type=password]{width:100%;padding:10px 14px;margin-bottom:12px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:var(--mono);font-size:14px;outline:none;
+  text-align:center;letter-spacing:4px;transition:border .2s;}
+.modal input[type=password]:focus{border-color:var(--accent);}
+.modal-err{font-size:11px;color:var(--danger);font-family:var(--mono);margin-bottom:10px;display:none;}
+.btn-login{width:100%;padding:11px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border:none;border-radius:8px;color:#000;font-family:var(--display);font-size:12px;
+  font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:10px;}
+.btn-cancel{width:100%;padding:8px;background:none;border:1px solid var(--border);
+  border-radius:8px;color:var(--dim);font-family:var(--mono);font-size:11px;cursor:pointer;}
+
+.toast{position:fixed;bottom:24px;right:20px;font-family:var(--mono);font-size:12px;
+  font-weight:bold;padding:10px 18px;border-radius:8px;letter-spacing:1px;
+  opacity:0;transform:translateY(10px);transition:all .3s;z-index:200;pointer-events:none;}
+.toast.ok{background:var(--ok);color:#000;}
+.toast.warn{background:var(--danger);color:#fff;}
+.toast.show{opacity:1;transform:translateY(0);}
+footer{text-align:center;font-size:9px;color:var(--dim);font-family:var(--mono);
+  letter-spacing:1px;border-top:1px solid var(--border);padding-top:14px;margin-top:16px;}
+footer span{color:var(--accent);}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="nav-logo">INTERVAL<span>CYBER</span></div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">📦 Dashboard Stok</a>
+      <a class="nav-link" href="laporan_shift.html">🚛 Laporan Shift</a>
+      <a class="nav-link active" href="log.html">📋 Log Aktivitas</a>
+    </div>
+  </nav>
+
+  <div class="topbar">
+    <div>
+      <div style="font-family:var(--display);font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;">LOG AKTIVITAS</div>
+      <div style="font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;margin-top:2px;">PT LATIHANKU — ADMIN LAPANGAN</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="text-align:right;">
+        <div id="clk">00:00:00</div>
+        <div id="tgl">-- --- ----</div>
+      </div>
+      <button class="mode-btn mode-viewer" id="mode-btn" onclick="toggleMode()">🔒 ADMIN LOGIN</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="scard c1"><div class="scard-label">Total Hari Ini</div><div class="scard-val" id="cnt-total">0</div></div>
+    <div class="scard c2"><div class="scard-label">Tugas</div><div class="scard-val blue" id="cnt-tugas">0</div></div>
+    <div class="scard c3"><div class="scard-label">Cek Lapangan</div><div class="scard-val green" id="cnt-cek">0</div></div>
+    <div class="scard c4"><div class="scard-label">Masalah</div><div class="scard-val purple" id="cnt-masalah">0</div></div>
+  </div>
+
+  <div class="viewer-banner" id="viewer-banner">
+    👁 <span>MODE VIEWER</span> — Data live. Hanya admin yang bisa menambah atau mereset aktivitas.
+  </div>
+
+  <div class="input-panel" id="input-panel">
+    <div class="panel-head">➕ CATAT AKTIVITAS BARU <span class="admin-tag">🔐 ADMIN</span></div>
+    <div class="input-body">
+      <div class="form-row">
+        <div><label>Judul Aktivitas</label><input type="text" id="f-judul" placeholder="Contoh: Cek stok solar gudang"/></div>
+        <div><label>Lokasi</label><input type="text" id="f-lokasi" placeholder="Gudang B, Pit 1"/></div>
+      </div>
+      <div class="form-row-3">
+        <div><label>Kategori</label>
+          <select id="f-kategori">
+            <option value="tugas">📋 Tugas Rutin</option>
+            <option value="cek">🔍 Cek Lapangan</option>
+            <option value="masalah">⚠️ Masalah</option>
+            <option value="laporan">📊 Laporan</option>
+            <option value="lainnya">🔧 Lainnya</option>
+          </select>
+        </div>
+        <div><label>Shift</label>
+          <select id="f-shift">
+            <option value="Pagi">Pagi (06–14)</option>
+            <option value="Siang">Siang (14–22)</option>
+            <option value="Malam">Malam (22–06)</option>
+          </select>
+        </div>
+        <div><label>Status</label>
+          <select id="f-status">
+            <option value="Selesai">✅ Selesai</option>
+            <option value="Proses">🔄 Proses</option>
+            <option value="Pending">⏳ Pending</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label>Keterangan</label>
+        <textarea id="f-ket" rows="2" placeholder="Detail aktivitas, temuan, atau catatan penting..."></textarea>
+      </div>
+      <button class="btn-catat" onclick="tambah()">⚡ CATAT AKTIVITAS</button>
+    </div>
+  </div>
+
+  <div class="timeline-panel">
+    <div class="timeline-head">
+      <h2>📋 Timeline Aktivitas Hari Ini</h2>
+      <button class="btn-reset" id="btn-reset" onclick="reset()">🗑 RESET</button>
+    </div>
+    <div class="timeline-body" id="timeline-body">
+      <div class="no-data">— Belum ada aktivitas hari ini —</div>
+    </div>
+  </div>
+
+  <footer>INTERVALCYBER SYSTEM &nbsp;|&nbsp; <span>intervalcyber.github.io</span> &nbsp;|&nbsp; LOG AKTIVITAS v2.0</footer>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">🔐</div>
+    <h2>ADMIN LOGIN</h2>
+    <p>Masukkan password untuk akses admin</p>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="modal-err" id="pw-err">❌ Password salah!</div>
+    <button class="btn-login" onclick="doLogin()">🔓 MASUK</button>
+    <button class="btn-cancel" onclick="closeModal()">Batal</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// ⚠️ GANTI PASSWORD DI SINI
+const ADMIN_PASSWORD = 'QRIS_1200PTPALU';
+// ══════════════════════════════════════
+
+let isAdmin=false;
+let logs=JSON.parse(localStorage.getItem('ic_aktivitas')||'[]');
+const EMOJI={tugas:'📋',cek:'🔍',masalah:'⚠️',laporan:'📊',lainnya:'🔧'};
+const LABEL={tugas:'Tugas Rutin',cek:'Cek Lapangan',masalah:'Masalah',laporan:'Laporan',lainnya:'Lainnya'};
+const SICON={'Selesai':'✅','Proses':'🔄','Pending':'⏳'};
+
+function getShift(){const h=new Date().getHours();if(h>=6&&h<14)return'Pagi';if(h>=14&&h<22)return'Siang';return'Malam';}
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clk').textContent=now.toLocaleTimeString('id-ID',{hour12:false});
+  document.getElementById('tgl').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('f-shift').value=getShift();
+}
+
+function toggleMode(){isAdmin?logout():openModal();}
+function openModal(){
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-err').style.display='none';
+  setTimeout(()=>document.getElementById('pw-input').focus(),300);
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function doLogin(){
+  if(document.getElementById('pw-input').value===ADMIN_PASSWORD){
+    isAdmin=true; closeModal(); updateUI(); showToast('🔐 Admin mode aktif!','ok');
+  } else {
+    document.getElementById('pw-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+function logout(){isAdmin=false;updateUI();showToast('👁 Mode viewer','ok');}
+
+function updateUI(){
+  const btn=document.getElementById('mode-btn');
+  const ip=document.getElementById('input-panel');
+  const vb=document.getElementById('viewer-banner');
+  const br=document.getElementById('btn-reset');
+  if(isAdmin){
+    btn.textContent='🔓 LOGOUT ADMIN'; btn.className='mode-btn mode-admin';
+    ip.classList.add('show'); vb.style.display='none'; br.classList.add('show');
+  } else {
+    btn.textContent='🔒 ADMIN LOGIN'; btn.className='mode-btn mode-viewer';
+    ip.classList.remove('show'); vb.style.display='block'; br.classList.remove('show');
+  }
+  render();
+}
+
+function tambah(){
+  const judul=document.getElementById('f-judul').value.trim();
+  const lokasi=document.getElementById('f-lokasi').value.trim();
+  const kategori=document.getElementById('f-kategori').value;
+  const shift=document.getElementById('f-shift').value;
+  const status=document.getElementById('f-status').value;
+  const ket=document.getElementById('f-ket').value.trim();
+  if(!judul){alert('⚠️ Judul wajib diisi!');return;}
+  const now=new Date();
+  logs.unshift({id:Date.now(),waktu:now.toLocaleTimeString('id-ID',{hour12:false}),
+    tanggal:now.toLocaleDateString('id-ID'),judul,lokasi,kategori,shift,status,ket});
+  localStorage.setItem('ic_aktivitas',JSON.stringify(logs));
+  document.getElementById('f-judul').value='';
+  document.getElementById('f-lokasi').value='';
+  document.getElementById('f-ket').value='';
+  render(); showToast('✅ '+judul+' dicatat!','ok');
+}
+
+function hapus(id){
+  if(!isAdmin)return;
+  logs=logs.filter(l=>l.id!==id);
+  localStorage.setItem('ic_aktivitas',JSON.stringify(logs));
+  render(); showToast('🗑 Dihapus','warn');
+}
+
+function reset(){
+  if(!isAdmin||!confirm('Reset semua aktivitas hari ini?'))return;
+  const today=new Date().toLocaleDateString('id-ID');
+  logs=logs.filter(l=>l.tanggal!==today);
+  localStorage.setItem('ic_aktivitas',JSON.stringify(logs));
+  render(); showToast('🗑 Data direset','warn');
+}
+
+function render(){
+  const today=new Date().toLocaleDateString('id-ID');
+  const tl=logs.filter(l=>l.tanggal===today);
+  document.getElementById('cnt-total').textContent=tl.length;
+  document.getElementById('cnt-tugas').textContent=tl.filter(l=>l.kategori==='tugas').length;
+  document.getElementById('cnt-cek').textContent=tl.filter(l=>l.kategori==='cek').length;
+  document.getElementById('cnt-masalah').textContent=tl.filter(l=>l.kategori==='masalah').length;
+  const body=document.getElementById('timeline-body');
+  if(!tl.length){body.innerHTML='<div class=\"no-data\">\u2014 Belum ada aktivitas hari ini \u2014</div>';return;}
+  body.innerHTML=tl.map((l,i)=>`
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot ${l.kategori}">${EMOJI[l.kategori]}</div>
+        ${i<tl.length-1?'<div class="tl-line"></div>':''}
+      </div>
+      <div class="tl-right">
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-waktu">⏱ ${l.waktu} — Shift ${l.shift}</span>
+            <div class="tl-badges">
+              <span class="tl-badge badge-${l.kategori}">${LABEL[l.kategori]}</span>
+              ${isAdmin?`<button class="btn-hapus" onclick="hapus(${l.id})">✕</button>`:''}
+            </div>
+          </div>
+          <div class="tl-judul">${SICON[l.status]} ${l.judul}</div>
+          ${l.ket?`<div class="tl-ket">${l.ket}</div>`:''}
+          ${l.lokasi?`<div class="tl-lokasi">📍 <span>${l.lokasi}</span></div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+render(); updateUI(); updateClock(); setInterval(updateClock,1000);
+</script>
+</body>
+</html>
