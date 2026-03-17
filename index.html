@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntervalCyber — Dashboard Stok</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050a0f; --panel:#080f1a; --panel2:#0a1525; --border:#0e2238;
+  --accent:#f0a500; --accent2:#ff6b00; --blue:#00b4d8;
+  --ok:#06d6a0; --danger:#ef233c; --purple:#a78bfa;
+  --text:#d4e5f7; --dim:#3d5a78;
+  --mono:'Share Tech Mono',monospace; --display:'Orbitron',monospace; --body:'Exo 2',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,180,216,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,.02) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:20px 14px 40px;}
+
+/* NAVBAR */
+nav{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:0 18px;margin-bottom:16px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.nav-logo{font-family:var(--display);font-size:14px;font-weight:900;letter-spacing:3px;padding:14px 0;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0;}
+.nav-link{padding:6px 14px;border-radius:6px;font-family:var(--mono);font-size:10px;
+  letter-spacing:1px;text-decoration:none;color:var(--dim);transition:all .2s;border:1px solid transparent;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{background:rgba(240,165,0,.1);color:var(--accent);border-color:rgba(240,165,0,.25);}
+
+/* TOPBAR */
+.topbar{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:12px 18px;margin-bottom:16px;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:10px;}
+.topbar-left p{font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;margin-top:2px;}
+#clk{font-family:var(--display);font-size:18px;color:var(--accent);letter-spacing:2px;}
+#tgl{font-size:9px;color:var(--dim);font-family:var(--mono);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr;}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;position:relative;overflow:hidden;animation:fadeUp .5s ease both;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.card.gold::before{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.card.warn::before{background:linear-gradient(90deg,#ff8c00,var(--accent));}
+.card.danger::before{background:linear-gradient(90deg,#cc0000,var(--danger));}
+.card-label{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:6px;font-family:var(--mono);}
+.card-val{font-family:var(--display);font-size:26px;font-weight:900;color:#fff;line-height:1;}
+.card-val span{font-size:12px;color:var(--dim);font-family:var(--body);}
+
+/* PROGRESS */
+.prog-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px;}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:6px;font-family:var(--mono);}
+.prog-label strong{color:var(--accent);}
+.prog-track{background:rgba(255,255,255,.05);border-radius:4px;height:8px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;transition:width .8s ease;}
+.prog-fill.ok{background:linear-gradient(90deg,#0077b6,var(--ok));}
+.prog-fill.warn{background:linear-gradient(90deg,#ff8c00,var(--accent));}
+.prog-fill.danger{background:linear-gradient(90deg,#cc0000,var(--danger));}
+
+/* ALERT */
+.alert-box{border-radius:10px;padding:14px 18px;display:flex;align-items:flex-start;
+  gap:12px;margin-bottom:16px;}
+.alert-box.warn{background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.25);}
+.alert-box.ok{background:rgba(6,214,160,.07);border:1px solid rgba(6,214,160,.25);}
+.alert-icon{font-size:20px;line-height:1;}
+.alert-text h3{font-size:12px;font-family:var(--display);font-weight:700;margin-bottom:3px;}
+.alert-text p{font-size:11px;color:var(--dim);line-height:1.6;}
+
+/* TABLE */
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.table-head{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--border);}
+.table-head h2{font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+.btn-refresh{background:rgba(0,180,216,.08);border:1px solid rgba(0,180,216,.2);
+  color:var(--blue);border-radius:6px;padding:4px 10px;font-family:var(--mono);
+  font-size:10px;cursor:pointer;letter-spacing:1px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:rgba(0,180,216,.04);}
+th{padding:9px 10px;text-align:center;font-family:var(--mono);font-size:9px;
+  letter-spacing:1px;color:var(--blue);text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;text-align:center;border-bottom:1px solid rgba(14,34,56,.6);
+  font-family:var(--mono);font-size:11px;}
+tbody tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:.5px;font-weight:600;}
+.badge.ok{background:rgba(6,214,160,.12);color:var(--ok);border:1px solid rgba(6,214,160,.25);}
+.badge.warn{background:rgba(245,166,35,.12);color:var(--accent);border:1px solid rgba(245,166,35,.25);}
+.badge.danger{background:rgba(239,35,60,.12);color:var(--danger);border:1px solid rgba(239,35,60,.25);}
+
+footer{text-align:center;font-size:9px;color:var(--dim);font-family:var(--mono);
+  letter-spacing:1px;border-top:1px solid var(--border);padding-top:14px;}
+footer span{color:var(--accent);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="nav-logo">INTERVAL<span>CYBER</span></div>
+    <div class="nav-links">
+      <a class="nav-link active" href="index.html">📦 Dashboard Stok</a>
+      <a class="nav-link" href="laporan_shift.html">🚛 Laporan Shift</a>
+      <a class="nav-link" href="log.html">📋 Log Aktivitas</a>
+    </div>
+  </nav>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div style="font-family:var(--display);font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;">DASHBOARD STOK</div>
+      <p>PT LATIHANKU — SITE POBOYA, PALU</p>
+    </div>
+    <div style="text-align:right;">
+      <div id="clk">00:00:00</div>
+      <div id="tgl">-- --- ----</div>
+    </div>
+  </div>
+
+  <div class="stats" id="stat-cards"></div>
+  <div class="prog-wrap" id="prog-wrap"></div>
+  <div id="alert-area"></div>
+
+  <div class="table-wrap">
+    <div class="table-head">
+      <h2>📋 Riwayat Pendataan Harian</h2>
+      <button class="btn-refresh" onclick="renderAll()">⟳ REFRESH</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th><th>Tanggal</th><th>Nama Barang</th><th>Merk</th>
+            <th>Stok Awal</th><th>Pemakaian</th><th>Ambil Ilegal</th><th>Stok Akhir</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>INTERVALCYBER SYSTEM &nbsp;|&nbsp; <span>intervalcyber.github.io</span> &nbsp;|&nbsp; DASHBOARD STOK v2.0</footer>
+</div>
+<script>
+const CONFIG = {
+  namaBarang:'Minyak Goreng', merk:'Minyakkita', satuan:'ml',
+  stokAwal:1000, pemakaian:200, batasKritis:200,
+};
+const ILEGAL = {2:100};
+
+function generateData() {
+  const rows=[]; let stok=CONFIG.stokAwal; const today=new Date();
+  for(let i=1;i<=5;i++){
+    const tgl=new Date(today); tgl.setDate(today.getDate()+(i-1));
+    const tglStr=tgl.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ilegal=ILEGAL[i]||0, stokAwal=stok, stokAkhir=stokAwal-CONFIG.pemakaian-ilegal;
+    let status='OK';
+    if(ilegal>0) status='SELISIH';
+    else if(stokAkhir<=CONFIG.batasKritis) status='KRITIS';
+    rows.push({no:i,tgl:tglStr,stokAwal,pemakaian:CONFIG.pemakaian,ilegal,stokAkhir,status});
+    stok=stokAkhir;
+  }
+  return rows;
+}
+
+function renderAll(){
+  const rows=generateData();
+  const last=rows[rows.length-1];
+  const totalIlegal=rows.reduce((a,r)=>a+r.ilegal,0);
+  const pct=Math.max(0,Math.round((last.stokAkhir/CONFIG.stokAwal)*100));
+  const cc=totalIlegal>0?'warn':last.stokAkhir<=CONFIG.batasKritis?'danger':'gold';
+
+  document.getElementById('stat-cards').innerHTML=`
+    <div class="card gold"><div class="card-label">Stok Akhir</div><div class="card-val">${last.stokAkhir.toLocaleString('id')} <span>${CONFIG.satuan}</span></div></div>
+    <div class="card ${cc}"><div class="card-label">Total Ilegal</div><div class="card-val">${totalIlegal.toLocaleString('id')} <span>${CONFIG.satuan}</span></div></div>
+    <div class="card gold"><div class="card-label">Sisa Stok</div><div class="card-val">${pct}<span>%</span></div></div>`;
+
+  const cls=pct>50?'ok':pct>20?'warn':'danger';
+  document.getElementById('prog-wrap').innerHTML=`
+    <div class="prog-label"><span>${CONFIG.namaBarang} — ${CONFIG.merk}</span><strong>${pct}%</strong></div>
+    <div class="prog-track"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div>`;
+
+  const hasIlegal=rows.some(r=>r.ilegal>0);
+  document.getElementById('alert-area').innerHTML=hasIlegal
+    ?`<div class="alert-box warn"><div class="alert-icon">⚠️</div><div class="alert-text"><h3>SELISIH STOK TERDETEKSI</h3><p>Ada pengambilan tidak tercatat. Lakukan verifikasi fisik segera.</p></div></div>`
+    :`<div class="alert-box ok"><div class="alert-icon">✅</div><div class="alert-text"><h3>STOK AMAN</h3><p>Semua data sesuai. Tidak ada indikasi pengambilan tanpa laporan.</p></div></div>`;
+
+  const tbody=document.getElementById('tbl-body');
+  tbody.innerHTML='';
+  rows.forEach(r=>{
+    const bc=r.status==='OK'?'ok':r.status==='SELISIH'?'warn':'danger';
+    const bl=r.status==='OK'?'✅ AMAN':r.status==='SELISIH'?'⚠ SELISIH':'🔴 KRITIS';
+    const ic=r.ilegal>0?`<span style="color:var(--accent);font-weight:bold">+${r.ilegal} ${CONFIG.satuan}</span>`:`<span style="color:var(--dim)">—</span>`;
+    tbody.innerHTML+=`<tr>
+      <td style="color:var(--dim)">${r.no}</td><td style="color:var(--accent)">${r.tgl}</td>
+      <td style="color:#fff">${CONFIG.namaBarang}</td><td>${CONFIG.merk}</td>
+      <td>${r.stokAwal.toLocaleString('id')} ${CONFIG.satuan}</td>
+      <td style="color:var(--blue)">${r.pemakaian.toLocaleString('id')} ${CONFIG.satuan}</td>
+      <td>${ic}</td>
+      <td style="color:${r.stokAkhir<=CONFIG.batasKritis?'var(--danger)':'#fff'};font-weight:bold">${r.stokAkhir.toLocaleString('id')} ${CONFIG.satuan}</td>
+      <td><span class="badge ${bc}">${bl}</span></td>
+    </tr>`;
+  });
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clk').textContent=now.toLocaleTimeString('id-ID',{hour12:false});
+  document.getElementById('tgl').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+renderAll(); updateClock(); setInterval(updateClock,1000);
+</script>
+</body>
+      </html>
+      
