@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntervalCyber — Laporan Shift</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050a0f;--panel:#080f1a;--panel2:#0a1525;--border:#0e2238;
+  --accent:#f0a500;--accent2:#ff6b00;--blue:#00b4d8;
+  --ok:#06d6a0;--danger:#ef233c;--purple:#a78bfa;
+  --text:#d4e5f7;--dim:#3d5a78;
+  --mono:'Share Tech Mono',monospace;--display:'Orbitron',monospace;--body:'Exo 2',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,180,216,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,.02) 1px,transparent 1px);
+  background-size:50px 50px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:20px 14px 40px;}
+
+/* NAVBAR */
+nav{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:0 18px;margin-bottom:16px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.nav-logo{font-family:var(--display);font-size:14px;font-weight:900;letter-spacing:3px;padding:14px 0;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0;}
+.nav-link{padding:6px 14px;border-radius:6px;font-family:var(--mono);font-size:10px;
+  letter-spacing:1px;text-decoration:none;color:var(--dim);transition:all .2s;border:1px solid transparent;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{background:rgba(240,165,0,.1);color:var(--accent);border-color:rgba(240,165,0,.25);}
+
+/* TOPBAR */
+.topbar{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:12px 18px;margin-bottom:16px;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:10px;}
+#clk{font-family:var(--display);font-size:18px;color:var(--accent);letter-spacing:2px;}
+#tgl{font-size:9px;color:var(--dim);font-family:var(--mono);}
+.shift-badge{padding:6px 14px;border-radius:6px;font-family:var(--mono);font-size:11px;
+  font-weight:bold;letter-spacing:1px;border:1px solid;}
+.shift-Pagi{background:rgba(240,165,0,.1);color:var(--accent);border-color:rgba(240,165,0,.3);}
+.shift-Siang{background:rgba(0,180,216,.1);color:var(--blue);border-color:rgba(0,180,216,.3);}
+.shift-Malam{background:rgba(167,139,250,.1);color:var(--purple);border-color:rgba(167,139,250,.3);}
+
+/* COUNTER */
+.counters{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+@media(max-width:480px){.counters{grid-template-columns:1fr 1fr;}}
+.ccard{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:16px 14px;text-align:center;position:relative;overflow:hidden;}
+.ccard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.ccard.c1::after{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.ccard.c2::after{background:linear-gradient(90deg,#0077b6,var(--blue));}
+.ccard.c3::after{background:linear-gradient(90deg,#028090,var(--ok));}
+.cc-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;font-family:var(--mono);}
+.cc-num{font-family:var(--display);font-size:42px;font-weight:900;line-height:1;color:#fff;}
+.cc-num.blue{color:var(--blue);}
+.cc-num.green{color:var(--ok);}
+.cc-unit{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:4px;}
+
+/* PROGRESS */
+.prog-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:14px 18px;margin-bottom:16px;}
+.prog-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prog-label span{font-size:10px;font-family:var(--mono);color:var(--dim);}
+.prog-label strong{color:var(--accent);}
+.prog-track{background:rgba(255,255,255,.05);border-radius:4px;height:8px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+  transition:width .6s ease;box-shadow:0 0 10px rgba(240,165,0,.4);}
+
+/* INPUT */
+.input-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.panel-head{background:var(--panel2);padding:12px 18px;border-bottom:1px solid var(--border);
+  font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+.input-body{padding:16px 18px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:500px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+label{font-size:9px;letter-spacing:1px;color:var(--dim);font-family:var(--mono);display:block;margin-bottom:4px;text-transform:uppercase;}
+input,select{width:100%;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border .2s;}
+input:focus,select:focus{border-color:var(--accent);}
+select option{background:#0a1525;}
+.btn-tambah{width:100%;padding:12px;background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border:none;border-radius:8px;color:#000;font-family:var(--display);font-size:12px;
+  font-weight:700;letter-spacing:2px;cursor:pointer;}
+
+/* TABLE */
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.table-head{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--border);}
+.table-head h2{font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+.btn-reset{background:rgba(239,35,60,.08);border:1px solid rgba(239,35,60,.2);
+  color:var(--danger);border-radius:6px;padding:4px 10px;font-family:var(--mono);font-size:10px;cursor:pointer;}
+.log-scroll{max-height:320px;overflow-y:auto;}
+.log-scroll::-webkit-scrollbar{width:3px;}
+.log-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:rgba(0,180,216,.04);position:sticky;top:0;z-index:2;}
+th{padding:9px 10px;text-align:center;font-family:var(--mono);font-size:9px;
+  letter-spacing:1px;color:var(--blue);text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;text-align:center;border-bottom:1px solid rgba(14,34,56,.6);
+  font-family:var(--mono);font-size:11px;}
+tbody tr:last-child td{border-bottom:none;}
+.no-data{text-align:center;padding:32px;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:1px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:.5px;font-weight:600;}
+.badge.pagi{background:rgba(240,165,0,.1);color:var(--accent);border:1px solid rgba(240,165,0,.2);}
+.badge.siang{background:rgba(0,180,216,.1);color:var(--blue);border:1px solid rgba(0,180,216,.2);}
+.badge.malam{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+@keyframes rowFlash{0%{background:rgba(240,165,0,.15);}100%{background:transparent;}}
+.row-new td{animation:rowFlash 1.5s ease;}
+
+.toast{position:fixed;bottom:24px;right:20px;background:var(--ok);color:#000;
+  font-family:var(--mono);font-size:12px;font-weight:bold;padding:10px 18px;
+  border-radius:8px;letter-spacing:1px;opacity:0;transform:translateY(10px);
+  transition:all .3s;z-index:1000;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+footer{text-align:center;font-size:9px;color:var(--dim);font-family:var(--mono);
+  letter-spacing:1px;border-top:1px solid var(--border);padding-top:14px;}
+footer span{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="nav-logo">INTERVAL<span>CYBER</span></div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">📦 Dashboard Stok</a>
+      <a class="nav-link active" href="laporan_shift.html">🚛 Laporan Shift</a>
+      <a class="nav-link" href="log.html">📋 Log Aktivitas</a>
+    </div>
+  </nav>
+
+  <div class="topbar">
+    <div>
+      <div style="font-family:var(--display);font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;">MONITOR RITASE TRUK</div>
+      <div style="font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;margin-top:2px;">PT LATIHANKU — SITE POBOYA</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div id="shift-badge" class="shift-badge shift-Pagi">⚡ SHIFT PAGI</div>
+      <div style="text-align:right;">
+        <div id="clk">00:00:00</div>
+        <div id="tgl">-- --- ----</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="counters">
+    <div class="ccard c1"><div class="cc-label">Total Truk Hari Ini</div><div class="cc-num" id="cnt-total">0</div><div class="cc-unit">Unit</div></div>
+    <div class="ccard c2"><div class="cc-label">Shift Aktif</div><div class="cc-num blue" id="cnt-shift">0</div><div class="cc-unit" id="cnt-shift-label">Shift Pagi</div></div>
+    <div class="ccard c3"><div class="cc-label">Total Ritase</div><div class="cc-num green" id="cnt-ritase">0</div><div class="cc-unit">Ritase</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-label">
+      <span>TARGET SHIFT: <strong id="target-val">10 TRUK</strong></span>
+      <span id="pct-label">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="input-panel">
+    <div class="panel-head">➕ INPUT DATA TRUK MASUK</div>
+    <div class="input-body">
+      <div class="form-row">
+        <div><label>Nomor Polisi Truk</label><input type="text" id="f-nopol" placeholder="DD 1234 AB"/></div>
+        <div><label>Nama Driver</label><input type="text" id="f-driver" placeholder="Nama driver"/></div>
+      </div>
+      <div class="form-row-3">
+        <div><label>Shift</label>
+          <select id="f-shift">
+            <option value="Pagi">Pagi (06–14)</option>
+            <option value="Siang">Siang (14–22)</option>
+            <option value="Malam">Malam (22–06)</option>
+          </select>
+        </div>
+        <div><label>Ritase Ke-</label><input type="number" id="f-ritase" value="1" min="1"/></div>
+        <div><label>Tonase (Ton)</label><input type="number" id="f-tonase" placeholder="0.0" step="0.1"/></div>
+      </div>
+      <div class="form-row">
+        <div><label>Material</label>
+          <select id="f-material">
+            <option value="Ore">Ore (Bijih Emas)</option>
+            <option value="Waste">Waste</option>
+            <option value="Overburden">Overburden</option>
+          </select>
+        </div>
+        <div><label>Keterangan</label><input type="text" id="f-ket" placeholder="Opsional..."/></div>
+      </div>
+      <button class="btn-tambah" onclick="tambah()">⚡ CATAT TRUK MASUK</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-head">
+      <h2>📋 Log Ritase Shift</h2>
+      <button class="btn-reset" onclick="resetData()">🗑 RESET</button>
+    </div>
+    <div class="log-scroll">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Waktu</th><th>No. Pol</th><th>Driver</th>
+          <th>Shift</th><th>Ritase</th><th>Tonase</th><th>Material</th><th>Ket</th>
+        </tr></thead>
+        <tbody id="log-body"><tr><td colspan="9" class="no-data">— Belum ada data —</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>INTERVALCYBER SYSTEM &nbsp;|&nbsp; <span>intervalcyber.github.io</span> &nbsp;|&nbsp; LAPORAN SHIFT v2.0</footer>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const TARGET=10;
+let logs=JSON.parse(localStorage.getItem('ic_shift')||'[]');
+
+function getShift(){const h=new Date().getHours();if(h>=6&&h<14)return'Pagi';if(h>=14&&h<22)return'Siang';return'Malam';}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clk').textContent=now.toLocaleTimeString('id-ID',{hour12:false});
+  document.getElementById('tgl').textContent=now.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  const s=getShift();
+  document.getElementById('f-shift').value=s;
+  const b=document.getElementById('shift-badge');
+  b.textContent=`⚡ SHIFT ${s.toUpperCase()}`;
+  b.className=`shift-badge shift-${s}`;
+}
+
+function tambah(){
+  const nopol=document.getElementById('f-nopol').value.trim().toUpperCase();
+  const driver=document.getElementById('f-driver').value.trim();
+  const shift=document.getElementById('f-shift').value;
+  const ritase=parseInt(document.getElementById('f-ritase').value)||1;
+  const tonase=parseFloat(document.getElementById('f-tonase').value)||0;
+  const material=document.getElementById('f-material').value;
+  const ket=document.getElementById('f-ket').value.trim();
+  if(!nopol||!driver){alert('⚠️ No. Polisi dan Driver wajib diisi!');return;}
+  const now=new Date();
+  logs.unshift({id:Date.now(),waktu:now.toLocaleTimeString('id-ID',{hour12:false}),
+    tanggal:now.toLocaleDateString('id-ID'),nopol,driver,shift,ritase,tonase,material,ket});
+  localStorage.setItem('ic_shift',JSON.stringify(logs));
+  document.getElementById('f-nopol').value='';
+  document.getElementById('f-driver').value='';
+  document.getElementById('f-ket').value='';
+  render(); showToast('✅ Truk '+nopol+' dicatat!');
+}
+
+function resetData(){
+  if(!confirm('Reset data shift hari ini?'))return;
+  const today=new Date().toLocaleDateString('id-ID');
+  logs=logs.filter(l=>l.tanggal!==today);
+  localStorage.setItem('ic_shift',JSON.stringify(logs));
+  render(); showToast('🗑 Data direset');
+}
+
+function render(){
+  const today=new Date().toLocaleDateString('id-ID');
+  const shiftNow=getShift();
+  const todayLogs=logs.filter(l=>l.tanggal===today);
+  const shiftLogs=todayLogs.filter(l=>l.shift===shiftNow);
+  const totalRitase=todayLogs.reduce((a,l)=>a+l.ritase,0);
+  document.getElementById('cnt-total').textContent=todayLogs.length;
+  document.getElementById('cnt-shift').textContent=shiftLogs.length;
+  document.getElementById('cnt-shift-label').textContent='Shift '+shiftNow;
+  document.getElementById('cnt-ritase').textContent=totalRitase;
+  const pct=Math.min(100,Math.round((shiftLogs.length/TARGET)*100));
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('pct-label').textContent=pct+'%';
+  const tbody=document.getElementById('log-body');
+  if(!todayLogs.length){tbody.innerHTML='<tr><td colspan="9" class="no-data">— Belum ada data —</td></tr>';return;}
+  tbody.innerHTML='';
+  todayLogs.forEach((l,i)=>{
+    const bc=l.shift==='Pagi'?'pagi':l.shift==='Siang'?'siang':'malam';
+    tbody.innerHTML+=`<tr class="${i===0?'row-new':''}">
+      <td style="color:var(--dim)">${todayLogs.length-i}</td>
+      <td style="color:var(--accent)">${l.waktu}</td>
+      <td style="color:#fff;font-weight:bold">${l.nopol}</td>
+      <td>${l.driver}</td>
+      <td><span class="badge ${bc}">${l.shift}</span></td>
+      <td style="color:var(--blue)">${l.ritase}</td>
+      <td style="color:var(--ok)">${l.tonase>0?l.tonase+' T':'—'}</td>
+      <td style="color:var(--dim)">${l.material}</td>
+      <td style="color:var(--dim);font-size:10px">${l.ket||'—'}</td>
+    </tr>`;
+  });
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+render(); updateClock(); setInterval(updateClock,1000);
+</script>
+</body>
+                                                                   </html>
+            
