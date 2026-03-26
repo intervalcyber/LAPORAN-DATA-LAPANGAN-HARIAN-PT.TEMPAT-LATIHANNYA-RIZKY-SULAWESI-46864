@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntervalCyber — Logistik</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0fdf4;--panel:#fff;--panel2:#f0fdf4;--border:#bbf7d0;--accent:#16a34a;--accent2:#15803d;--blue:#0891b2;--ok:#22c55e;--danger:#ef4444;--purple:#8b5cf6;--gold:#f59e0b;--text:#14532d;--dim:#6b7280;--mono:'Share Tech Mono',monospace;--display:'Orbitron',monospace;--body:'Exo 2',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(22,163,74,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(22,163,74,.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:20px 14px 40px;}
+nav{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.nav-logo{font-family:var(--display);font-size:14px;font-weight:900;letter-spacing:3px;padding:14px 0;color:var(--text);}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0;}
+.nav-link{padding:6px 12px;border-radius:6px;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-decoration:none;color:var(--dim);transition:all .2s;border:1px solid transparent;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-link.active{background:rgba(22,163,74,.1);color:var(--accent);border-color:rgba(22,163,74,.25);}
+.topbar{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+#clk{font-family:var(--display);font-size:18px;color:var(--accent);letter-spacing:2px;}
+#tgl{font-size:9px;color:var(--dim);font-family:var(--mono);}
+.mode-btn{padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:bold;letter-spacing:1px;cursor:pointer;border:1px solid;transition:all .2s;}
+.mode-viewer{background:rgba(8,145,178,.08);color:var(--blue);border-color:rgba(8,145,178,.25);}
+.mode-admin{background:rgba(22,163,74,.15);color:var(--accent);border-color:rgba(22,163,74,.4);}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:500px){.stats{grid-template-columns:1fr 1fr;}}
+.scard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;position:relative;overflow:hidden;}
+.scard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.scard.c1::after{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.scard.c2::after{background:linear-gradient(90deg,#0077b6,var(--blue));}
+.scard.c3::after{background:linear-gradient(90deg,#028090,var(--ok));}
+.scard.c4::after{background:linear-gradient(90deg,#cc0000,var(--danger));}
+.scard.c5::after{background:linear-gradient(90deg,#6d28d9,var(--purple));}
+.scard.c6::after{background:linear-gradient(90deg,#b45309,var(--gold));}
+.scard-label{font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;font-family:var(--mono);margin-bottom:6px;}
+.scard-val{font-family:var(--display);font-size:24px;font-weight:900;color:var(--text);line-height:1;}
+.scard-val.green{color:var(--ok);}
+.scard-val.blue{color:var(--blue);}
+.scard-val.red{color:var(--danger);}
+.scard-val.gold{color:var(--gold);}
+.scard-val.purple{color:var(--purple);}
+.scard-unit{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:4px;}
+.viewer-banner{background:rgba(8,145,178,.05);border:1px solid rgba(8,145,178,.15);border-radius:10px;padding:12px 18px;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:var(--dim);}
+.viewer-banner span{color:var(--blue);}
+.input-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;display:none;}
+.input-panel.show{display:block;}
+.panel-head{background:var(--panel2);padding:12px 18px;border-bottom:1px solid var(--border);font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.admin-tag{font-size:9px;background:rgba(22,163,74,.1);color:var(--accent);border:1px solid rgba(22,163,74,.2);border-radius:20px;padding:2px 8px;}
+.input-body{padding:16px 18px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:500px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+label{font-size:9px;letter-spacing:1px;color:var(--dim);font-family:var(--mono);display:block;margin-bottom:4px;text-transform:uppercase;}
+input,select,textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border .2s;resize:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+select option{background:#fff;}
+.btn-catat{width:100%;padding:12px;background:linear-gradient(90deg,var(--accent2),var(--ok));border:none;border-radius:8px;color:#fff;font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;}
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.table-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--panel2);border-bottom:1px solid var(--border);}
+.table-head h2{font-family:var(--display);font-size:11px;letter-spacing:2px;color:var(--text);text-transform:uppercase;}
+.btn-reset{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--danger);border-radius:6px;padding:4px 10px;font-family:var(--mono);font-size:10px;cursor:pointer;display:none;}
+.btn-reset.show{display:block;}
+.log-scroll{max-height:320px;overflow-y:auto;}
+.log-scroll::-webkit-scrollbar{width:3px;}
+.log-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:rgba(22,163,74,.06);}
+th{padding:9px 10px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--accent);text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;text-align:center;border-bottom:1px solid rgba(187,247,208,.5);font-family:var(--mono);font-size:11px;}
+tbody tr:last-child td{border-bottom:none;}
+.no-data{text-align:center;padding:32px;color:var(--dim);font-family:var(--mono);font-size:11px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;}
+.badge.masuk,.badge.hadir,.badge.ok,.badge.normal{background:rgba(22,163,74,.12);color:var(--ok);border:1px solid rgba(22,163,74,.25);}
+.badge.keluar,.badge.alpha,.badge.danger{background:rgba(239,68,68,.12);color:var(--danger);border:1px solid rgba(239,68,68,.25);}
+.badge.warn,.badge.izin,.badge.penting{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);}
+.badge.sakit,.badge.info,.badge.down{background:rgba(8,145,178,.12);color:var(--blue);border:1px solid rgba(8,145,178,.25);}
+.badge.ore{background:rgba(22,163,74,.12);color:var(--ok);border:1px solid rgba(22,163,74,.25);}
+.badge.waste{background:rgba(8,145,178,.12);color:var(--blue);border:1px solid rgba(8,145,178,.25);}
+.badge.ob{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.25);}
+.badge.pagi{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);}
+.badge.siang{background:rgba(8,145,178,.12);color:var(--blue);border:1px solid rgba(8,145,178,.25);}
+.badge.malam{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(139,92,246,.25);}
+.badge.selisih{background:rgba(239,68,68,.12);color:var(--danger);border:1px solid rgba(239,68,68,.25);}
+.tl-item{display:flex;gap:12px;margin-bottom:14px;}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:2px solid var(--border);background:var(--panel2);}
+.tl-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex:1;}
+.tl-waktu{font-family:var(--mono);font-size:10px;color:var(--accent);margin-bottom:4px;}
+.tl-judul{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.tl-ket{font-size:11px;color:var(--dim);line-height:1.6;}
+.tl-shift{font-size:10px;color:var(--dim);font-family:var(--mono);margin-top:4px;}
+.tab-btn{padding:8px 16px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:bold;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--dim);transition:all .2s;margin-right:8px;margin-bottom:12px;}
+.tab-btn.active{background:rgba(22,163,74,.1);color:var(--accent);border-color:rgba(22,163,74,.3);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px 24px;width:90%;max-width:360px;text-align:center;transform:translateY(20px);transition:transform .3s;}
+.modal-overlay.show .modal{transform:translateY(0);}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal h2{font-family:var(--display);font-size:14px;letter-spacing:2px;color:var(--text);margin-bottom:6px;}
+.modal p{font-size:11px;color:var(--dim);font-family:var(--mono);margin-bottom:20px;}
+.modal input[type=password]{width:100%;padding:10px 14px;margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;text-align:center;letter-spacing:4px;}
+.modal input[type=password]:focus{border-color:var(--accent);}
+.modal-err{font-size:11px;color:var(--danger);font-family:var(--mono);margin-bottom:10px;display:none;}
+.btn-login{width:100%;padding:11px;background:linear-gradient(90deg,var(--accent2),var(--ok));border:none;border-radius:8px;color:#fff;font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:10px;}
+.btn-cancel{width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--dim);font-family:var(--mono);font-size:11px;cursor:pointer;}
+.toast{position:fixed;bottom:24px;right:20px;font-family:var(--mono);font-size:12px;font-weight:bold;padding:10px 18px;border-radius:8px;letter-spacing:1px;opacity:0;transform:translateY(10px);transition:all .3s;z-index:200;pointer-events:none;}
+.toast.ok{background:var(--ok);color:#000;}
+.toast.warn{background:var(--danger);color:#fff;}
+.toast.show{opacity:1;transform:translateY(0);}
+footer{text-align:center;font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:1px;border-top:1px solid var(--border);padding-top:14px;}
+footer span{color:var(--accent);}
+
+/* FLOATING EFFECT */
+.scard, .table-wrap, .input-panel, .viewer-banner,
+.geo-export, .topbar, nav, .chart-card, .tl-card,
+.modal, .catatan, .card {
+  box-shadow: 0 4px 20px rgba(22,163,74,.08), 0 1px 4px rgba(0,0,0,.04);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.scard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(22,163,74,.15), 0 2px 8px rgba(0,0,0,.06);
+}
+.mod-card {
+  box-shadow: 0 4px 20px rgba(22,163,74,.08);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.mod-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(22,163,74,.18);
+}
+.table-wrap, .input-panel, .viewer-banner, .topbar, nav {
+  box-shadow: 0 4px 16px rgba(22,163,74,.06);
+}
+.btn-catat, .btn-login {
+  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 4px 12px rgba(22,163,74,.25);
+}
+.btn-catat:hover, .btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(22,163,74,.35);
+}
+.btn-catat:active, .btn-login:active {
+  transform: translateY(0);
+}
+/* SMOOTH PAGE LOAD */
+.wrap {
+  animation: fadeUp .4s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* CARD APPEAR ANIMATION */
+.scard {
+  animation: cardIn .4s ease both;
+}
+.scard:nth-child(1){animation-delay:.05s}
+.scard:nth-child(2){animation-delay:.1s}
+.scard:nth-child(3){animation-delay:.15s}
+.scard:nth-child(4){animation-delay:.2s}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* INPUT FOCUS GLOW */
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(22,163,74,.15);
+}
+/* NAV LINK HOVER */
+.nav-link {
+  transition: all .2s ease;
+}
+.nav-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(22,163,74,.1);
+}
+
+
+/* FILTER BAR */
+.filter-bar{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.filter-title{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-right:4px;}
+.filter-btn{padding:5px 12px;border-radius:20px;font-family:var(--mono);font-size:10px;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--dim);transition:all .2s;}
+.filter-btn.active{background:rgba(22,163,74,.1);color:var(--accent);border-color:rgba(22,163,74,.3);font-weight:bold;}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.date-filter{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;width:100%;}
+.date-filter label{font-size:9px;color:var(--dim);font-family:var(--mono);}
+.date-input{width:auto;padding:5px 10px;font-size:11px;border-radius:6px;}
+.filter-count{font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="nav-logo">INTERVAL<span>CYBER</span></div>
+    <div class="nav-links">
+      <a class="nav-link " href="menu.html">🏠 Menu</a>
+      <a class="nav-link " href="produksi.html">📋 Produksi</a>
+      <a class="nav-link active" href="logistik.html">⛽ Logistik</a>
+      <a class="nav-link " href="maintenance.html">🔧 Maintenance</a>
+      <a class="nav-link " href="laporan.html">📊 Laporan</a>
+      <a class="nav-link " href="absen.html">👤 Absensi</a>
+      <a class="nav-link " href="stok.html">📦 Stok</a>
+    </div>
+  </nav>
+  <div class="topbar">
+    <div>
+      <div style="font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);letter-spacing:2px;">LOGISTIK & GUDANG</div>
+      <div style="font-size:9px;color:var(--dim);font-family:var(--mono);margin-top:2px;">BBM & SPAREPART</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="text-align:right;"><div id="clk">00:00:00</div><div id="tgl"></div></div>
+      <button class="mode-btn mode-viewer" id="mode-btn" onclick="toggleMode()">🔒 ADMIN</button>
+    </div>
+  </div>
+  <div class="stats"><div class="scard c1"><div class="scard-label">Total Transaksi</div><div class="scard-val" id="s1">0</div><div class="scard-unit">hari ini</div></div>
+  <div class="scard c2"><div class="scard-label">Masuk</div><div class="scard-val green" id="s2">0</div><div class="scard-unit">item</div></div>
+  <div class="scard c3"><div class="scard-label">Keluar</div><div class="scard-val blue" id="s3">0</div><div class="scard-unit">item</div></div>
+  <div class="scard c4"><div class="scard-label">Jenis Barang</div><div class="scard-val red" id="s4">0</div><div class="scard-unit">jenis</div></div></div>
+  <div class="viewer-banner" id="viewer-banner">👁 <span>MODE VIEWER</span> — Login admin untuk input data.</div>
+  <div class="input-panel" id="input-panel">
+    <div class="panel-head">➕ INPUT DATA <span class="admin-tag">🔐 ADMIN</span></div>
+    <div class="input-body"><label>Tipe Transaksi</label>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+    <button id="btn-masuk" onclick="setTipe('masuk')" style="padding:8px 16px;border-radius:6px;font-family:var(--mono);font-size:11px;cursor:pointer;font-weight:bold;background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.3);">📥 MASUK</button>
+    <button id="btn-keluar" onclick="setTipe('keluar')" style="padding:8px 16px;border-radius:6px;font-family:var(--mono);font-size:11px;cursor:pointer;font-weight:bold;background:transparent;color:var(--blue);border:1px solid rgba(8,145,178,.3);">📤 KELUAR</button>
+  </div>
+  <div class="form-row">
+    <div><label>Nama Barang</label><input type="text" id="f-barang" placeholder="Solar, Oli..."/></div>
+    <div><label>Kategori</label><select id="f-kategori"><option value="BBM">BBM/Solar</option><option value="Sparepart">Sparepart</option><option value="Material">Material</option><option value="Lainnya">Lainnya</option></select></div>
+  </div>
+  <div class="form-row-3">
+    <div><label>Jumlah</label><input type="number" id="f-jumlah" placeholder="0" min="1"/></div>
+    <div><label>Satuan</label><select id="f-satuan"><option value="L">Liter</option><option value="kg">kg</option><option value="pcs">pcs</option><option value="unit">unit</option><option value="box">box</option></select></div>
+    <div><label>Penerima</label><input type="text" id="f-person" placeholder="Nama"/></div>
+  </div>
+  <div style="margin-bottom:10px;"><label>Keterangan</label><input type="text" id="f-ket" placeholder="Opsional"/></div>
+  <button class="btn-catat" onclick="tambah()">⚡ CATAT SEKARANG</button></div>
+  </div>
+  <div class="filter-bar">
+    <span class="filter-title">🔍 Filter:</span>
+    <button class="filter-btn active" onclick="setFilter('semua')">Semua</button>
+    <button class="filter-btn" onclick="setFilter('masuk')">📥 Masuk</button>
+    <button class="filter-btn" onclick="setFilter('keluar')">📤 Keluar</button>
+    <button class="filter-btn" onclick="setFilter('BBM')">⛽ BBM</button>
+    <button class="filter-btn" onclick="setFilter('Sparepart')">🔩 Sparepart</button>
+    <div class="filter-sep"></div>
+    <div class="date-filter">
+      <button class="filter-btn active" id="dp-hari" onclick="setPeriod('hari')">Hari Ini</button>
+      <button class="filter-btn" id="dp-minggu" onclick="setPeriod('minggu')">Minggu Ini</button>
+      <button class="filter-btn" id="dp-bulan" onclick="setPeriod('bulan')">Bulan Ini</button>
+      <button class="filter-btn" id="dp-custom" onclick="setPeriod('custom')">📅 Pilih Tanggal</button>
+      <input type="date" id="tgl-custom" class="date-input" style="display:none;" onchange="render()"/>
+      <span class="filter-count" id="filter-count">0 data</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+    <button onclick="exportPDF()" style="padding:9px 20px;background:linear-gradient(90deg,#6d28d9,#8b5cf6);border:none;border-radius:8px;color:#fff;font-family:var(--mono);font-size:11px;font-weight:bold;cursor:pointer;letter-spacing:1px;box-shadow:0 4px 12px rgba(139,92,246,.3);">📄 EKSPOR PDF</button>
+  </div>
+<div class="table-wrap">
+    <div class="table-head"><h2>⛽ Log Pergerakan Barang</h2><button class="btn-reset" id="btn-reset" onclick="resetData()">🗑 RESET</button></div>
+    <div class="log-scroll"><table>
+      <thead><tr><th>#</th><th>Waktu</th><th>Tipe</th><th>Barang</th><th>Jumlah</th><th>Penerima</th><th>Ket</th></tr></thead>
+      <tbody id="log-body"><tr><td colspan="7" class="no-data">— Belum ada transaksi hari ini —</td></tr></tbody>
+    </table></div>
+  </div>
+  <footer>INTERVALCYBER &nbsp;|&nbsp; <span>LOGISTIK</span> &nbsp;|&nbsp; v2.0</footer>
+</div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">⛽</div>
+    <h2>ADMIN LOGIN</h2>
+    <p>Password modul logistik</p>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="modal-err" id="pw-err">❌ Password salah!</div>
+    <button class="btn-login" onclick="doLogin()">MASUK</button>
+    <button class="btn-cancel" onclick="closeModal()">Batal</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+var PASS = 'QRIS_1200PTPALU';
+var isAdmin = false;
+function updateClock() {
+  var now = new Date();
+  document.getElementById('clk').textContent = now.toLocaleTimeString('id-ID',{hour12:false});
+  document.getElementById('tgl').textContent = now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function toggleMode() { isAdmin ? logout() : openModal(); }
+function openModal() {
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').style.display = 'none';
+  setTimeout(function(){ document.getElementById('pw-input').focus(); }, 300);
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function doLogin() {
+  if (document.getElementById('pw-input').value === PASS) {
+    isAdmin = true; closeModal(); updateUI(); showToast('🔐 Admin aktif!','ok');
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+function logout() { isAdmin = false; updateUI(); showToast('👁 Mode viewer','ok'); }
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'ok') + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+var logs=JSON.parse(localStorage.getItem('ic_logistik')||'[]');
+var tipe='masuk';
+function setTipe(t){tipe=t;document.getElementById('btn-masuk').style.background=t==='masuk'?'rgba(34,197,94,.15)':'transparent';document.getElementById('btn-keluar').style.background=t==='keluar'?'rgba(8,145,178,.15)':'transparent';}
+function updateUI(){var btn=document.getElementById('mode-btn');if(isAdmin){btn.textContent='🔓 LOGOUT';btn.className='mode-btn mode-admin';document.getElementById('input-panel').classList.add('show');document.getElementById('viewer-banner').style.display='none';document.getElementById('btn-reset').classList.add('show');}else{btn.textContent='🔒 ADMIN';btn.className='mode-btn mode-viewer';document.getElementById('input-panel').classList.remove('show');document.getElementById('viewer-banner').style.display='block';document.getElementById('btn-reset').classList.remove('show');}render();}
+function tambah(){var barang=document.getElementById('f-barang').value.trim();var jumlah=parseFloat(document.getElementById('f-jumlah').value)||0;if(!barang){alert('Nama barang wajib!');return;}if(!jumlah){alert('Jumlah wajib!');return;}var now=new Date();logs.unshift({id:Date.now(),waktu:now.toLocaleTimeString('id-ID',{hour12:false}),tanggal:now.toLocaleDateString('id-ID'),tipe:tipe,barang:barang,kategori:document.getElementById('f-kategori').value,jumlah:jumlah,satuan:document.getElementById('f-satuan').value,person:document.getElementById('f-person').value.trim(),ket:document.getElementById('f-ket').value.trim()});localStorage.setItem('ic_logistik',JSON.stringify(logs));document.getElementById('f-barang').value='';document.getElementById('f-jumlah').value='';document.getElementById('f-ket').value='';document.getElementById('f-person').value='';render();showToast((tipe==='masuk'?'📥 ':'📤 ')+barang+' dicatat!','ok');}
+function hapus(id){if(!isAdmin)return;logs=logs.filter(function(l){return l.id!==id;});localStorage.setItem('ic_logistik',JSON.stringify(logs));render();showToast('🗑 Dihapus','warn');}
+function resetData(){if(!isAdmin||!confirm('Reset hari ini?'))return;var t=new Date().toLocaleDateString('id-ID');logs=logs.filter(function(l){return l.tanggal!==t;});localStorage.setItem('ic_logistik',JSON.stringify(logs));render();showToast('🗑 Reset','warn');}
+
+var activeFilter = 'semua';
+var activePeriod = 'hari';
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b) {
+    if (b.getAttribute('onclick') === "setFilter('" + f + "')") b.classList.add('active');
+    else if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf('setFilter') > -1) b.classList.remove('active');
+  });
+  render();
+}
+
+function setPeriod(p) {
+  activePeriod = p;
+  var ids = ['hari','minggu','bulan','custom'];
+  for (var i=0; i<ids.length; i++) {
+    var el = document.getElementById('dp-'+ids[i]);
+    if (el) el.classList.remove('active');
+  }
+  var active = document.getElementById('dp-'+p);
+  if (active) active.classList.add('active');
+  var customInput = document.getElementById('tgl-custom');
+  if (p === 'custom') customInput.style.display = 'block';
+  else customInput.style.display = 'none';
+  render();
+}
+
+function getFilteredLogs() {
+  var now = new Date();
+  var today = now.toLocaleDateString('id-ID');
+  var filtered = logs;
+  if (activePeriod === 'hari') {
+    filtered = filtered.filter(function(l){ return l.tanggal === today; });
+  } else if (activePeriod === 'minggu') {
+    var day = now.getDay();
+    var mon = new Date(now); mon.setDate(now.getDate()-(day===0?6:day-1)); mon.setHours(0,0,0,0);
+    var sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    filtered = filtered.filter(function(l){
+      var p = l.tanggal.split('/'); if(p.length<3) return false;
+      var d = new Date(+p[2],+p[1]-1,+p[0]); return d >= mon && d <= sun;
+    });
+  } else if (activePeriod === 'bulan') {
+    filtered = filtered.filter(function(l){
+      var p = l.tanggal.split('/'); if(p.length<3) return false;
+      return +p[1]-1 === now.getMonth() && +p[2] === now.getFullYear();
+    });
+  } else if (activePeriod === 'custom') {
+    var val = document.getElementById('tgl-custom').value;
+    if (val) {
+      var parts = val.split('-');
+      var tgl = parts[2]+'/'+parts[1]+'/'+parts[0];
+      filtered = filtered.filter(function(l){ return l.tanggal === tgl; });
+    }
+  }
+  if(activeFilter!=='semua'&&(activeFilter==='masuk'||activeFilter==='keluar')){filtered=filtered.filter(function(l){return l.tipe===activeFilter;});}else if(activeFilter!=='semua'){filtered=filtered.filter(function(l){return l.kategori===activeFilter;});}
+  return filtered;
+}
+
+function render(){var tl=getFilteredLogs();var mk=tl.filter(function(l){return l.tipe==='masuk';}).length;var kl=tl.filter(function(l){return l.tipe==='keluar';}).length;var jns={};for(var i=0;i<tl.length;i++)jns[tl[i].barang]=1;document.getElementById('s1').textContent=tl.length;var fc=document.getElementById('filter-count');if(fc)fc.textContent=tl.length+' data';document.getElementById('s2').textContent=mk;document.getElementById('s3').textContent=kl;document.getElementById('s4').textContent=Object.keys(jns).length;var tbody=document.getElementById('log-body');if(!tl.length){tbody.innerHTML='<tr><td colspan="7" class="no-data">— Belum ada transaksi hari ini —</td></tr>';return;}var h='';for(var i=0;i<tl.length;i++){var l=tl[i];h+='<tr><td style="color:var(--dim)">'+(tl.length-i)+'</td><td style="color:var(--accent)">'+l.waktu+'</td><td><span class="badge '+l.tipe+'">'+(l.tipe==='masuk'?'📥 Masuk':'📤 Keluar')+'</span></td><td style="font-weight:bold">'+l.barang+'</td><td style="color:'+(l.tipe==='masuk'?'var(--ok)':'var(--blue)')+';font-weight:bold">'+(l.tipe==='masuk'?'+':'-')+l.jumlah+' '+l.satuan+'</td><td style="color:var(--dim);font-size:10px">'+(l.person||'—')+'</td><td style="color:var(--dim);font-size:10px">'+(isAdmin?'<button onclick="hapus('+l.id+')" style="background:none;border:none;color:var(--danger);cursor:pointer;">✕</button> ':'')+(l.ket||'—')+'</td></tr>';}tbody.innerHTML=h;}
+
+function exportPDF() {
+  var tl = getFilteredLogs();
+  if (!tl.length) { alert('Tidak ada data untuk diekspor!'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  var now = new Date();
+  var tglCetak = now.toLocaleDateString('id-ID', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  doc.setFillColor(8, 145, 178);
+  doc.rect(0, 0, 297, 18, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(255, 255, 255);
+  doc.text('INTERVALCYBER — LAPORAN LOGISTIK & GUDANG', 14, 12);
+  doc.setFontSize(9);
+  doc.text('PT [Nama Perusahaan]', 220, 9);
+  doc.text('Site Operasi', 220, 14);
+
+  doc.setTextColor(50,50,50);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Tanggal Cetak : ' + tglCetak, 14, 26);
+  var masukC = tl.filter(function(l){return l.tipe==='masuk';}).length;
+  var keluarC = tl.filter(function(l){return l.tipe==='keluar';}).length;
+  doc.text('Total Transaksi : ' + tl.length + '  |  Masuk: ' + masukC + '  |  Keluar: ' + keluarC, 14, 31);
+
+  var body = [];
+  for (var i = 0; i < tl.length; i++) {
+    var l = tl[i];
+    body.push([
+      tl.length - i,
+      l.tanggal,
+      l.waktu,
+      l.tipe === 'masuk' ? 'MASUK' : 'KELUAR',
+      l.barang,
+      l.kategori,
+      (l.tipe==='masuk'?'+':'-') + l.jumlah + ' ' + l.satuan,
+      l.person || '—',
+      l.ket || '—'
+    ]);
+  }
+  doc.autoTable({
+    startY: 37,
+    head: [['#','Tanggal','Waktu','Tipe','Barang','Kategori','Jumlah','Penerima','Keterangan']],
+    body: body,
+    theme: 'grid',
+    headStyles: { fillColor: [8,145,178], textColor: [255,255,255], fontSize: 8, fontStyle: 'bold' },
+    bodyStyles: { fontSize: 8, textColor: [50,50,50] },
+    alternateRowStyles: { fillColor: [240,249,255] },
+    columnStyles: { 0:{halign:'center',cellWidth:8}, 3:{halign:'center'}, 6:{halign:'center'} }
+  });
+
+  var finalY = doc.lastAutoTable.finalY + 12;
+  if (finalY > 185) finalY = 185;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,80);
+  doc.text('Dibuat oleh,', 30, finalY);
+  doc.text('Diketahui oleh,', 120, finalY);
+  doc.text('Disetujui oleh,', 220, finalY);
+  finalY += 20;
+  doc.line(14,finalY,90,finalY); doc.line(104,finalY,180,finalY); doc.line(204,finalY,280,finalY);
+  finalY += 5;
+  doc.text('Admin Lapangan', 30, finalY); doc.text('Supervisor', 128, finalY); doc.text('Superintendent', 228, finalY);
+  doc.setFontSize(7); doc.setTextColor(150,150,150);
+  doc.text('IntervalCyber Field Admin System — Dicetak otomatis dari sistem', 14, 208);
+
+  doc.save('Laporan_Logistik_' + now.toLocaleDateString('id-ID').replace(/\//g,'-') + '.pdf');
+}
+
+updateUI(); updateClock(); setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
